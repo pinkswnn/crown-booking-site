@@ -287,11 +287,11 @@ export default function App() {
           viewport={{ once: true, margin: "-80px" }}
         >
           <div className="sectionInner">
-            <h1 className="h1">Come home to your crown.</h1>
+            <h1 className="h1">Come home to your crown</h1>
             <p className="sub">
-              Intentional hair care, grounding scalp massage, and protective styling—
+              Intentional hair care, soothing scalp massage, and protective styles-
               <br />
-              designed to support calm, clarity, and long-term consistency.
+              designed to support calm, clarity, and long term consistency.
             </p>
 
             <div className="btnRow">
@@ -304,32 +304,6 @@ export default function App() {
           </div>
         </motion.section>
 
-        {/* QUICK CONTEXT */}
-        <motion.section
-          id="context"
-          className="section"
-          variants={fadeUp}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-80px" }}
-        >
-          <div className="sectionInner">
-            <div className="cards3">
-              <div className="card">
-                <div className="cardTitle">The Work</div>
-                <div className="cardBody">Crown care that’s handled right. No extra, no guessing.</div>
-              </div>
-              <div className="card">
-                <div className="cardTitle">How It Feels</div>
-                <div className="cardBody">Calm all the way through. Nothing rushed.</div>
-              </div>
-              <div className="card">
-                <div className="cardTitle">What It Delivers</div>
-                <div className="cardBody">Care that’s intentional and results you can stand on.</div>
-              </div>
-            </div>
-          </div>
-        </motion.section>
 
         {/* AVAILABILITY */}
         <motion.section
@@ -347,9 +321,9 @@ export default function App() {
               <div className="card">
                 <div className="cardTitle">In-Shop</div>
                 <div className="cardBody">
-                  Fri 11:30–3:30
+                  Fri 11:30-3:30
                   <br />
-                  Sat 2:00–6:00
+                  Sat 2:00-6:00
                   <br />
                   <br />
                   Walk-ins welcome if space allows.
@@ -463,7 +437,7 @@ export default function App() {
               <div className="card">
                 <div className="cardTitle">2. Review &amp; Approval</div>
                 <div className="cardBody">
-                  Requests are reviewed personally. Approved bookings receive confirmation and next steps.
+                Approved bookings receive confirmation and next steps.
                 </div>
               </div>
               <div className="card">
