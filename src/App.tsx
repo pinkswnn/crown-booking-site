@@ -88,19 +88,21 @@ function buildSingleLineText(opts: {
   return parts.join(" | ");
 }
 
-// NEW: Blank prefilled SMS (so sticky bar can always send a clean template)
-function buildBlankSingleLineText() {
-  const parts = [
+// NEW: Blank prefilled SMS (multi-line; each input on a new line)
+function buildBlankMultilineText() {
+  return [
     "Hey Pink Swann, Crown Request.",
+    "",
     "Name:",
     "Phone:",
+    "Email:",
     "Service:",
     "Type: In-Shop or Mobile",
     "Preferred Date:",
     "Time Window:",
+    "",
     "Notes:",
-  ];
-  return parts.join(" | ");
+  ].join("\n");
 }
 
 const asset = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\/?/, "")}`;
@@ -133,7 +135,7 @@ export default function App() {
     return { ok: errs.length === 0, errs };
   }, [name, phone, service]);
 
-  // Filled text (used in form + bottom sticky)
+  // Filled text (used in FORM Text To Book button)
   const smsHref = useMemo(() => {
     const body = buildSingleLineText({
       name,
@@ -148,9 +150,9 @@ export default function App() {
     return buildSmsHref(body);
   }, [name, phone, email, service, serviceType, preferredDate, timing, notes]);
 
-  // Blank template text (used in TOP sticky bar)
+  // Blank template text (used in TOP Request Appointment + BOTTOM sticky Text To Book)
   const smsBlankHref = useMemo(() => {
-    return buildSmsHref(buildBlankSingleLineText());
+    return buildSmsHref(buildBlankMultilineText());
   }, []);
 
   const mailtoHref = useMemo(() => {
@@ -232,7 +234,7 @@ export default function App() {
     <div className="page">
       <div className="bg" />
 
-      {/* Sticky Top Bar: BOTH CTAs -> BLANK prefilled SMS (NO Stripe / NO Form) */}
+      {/* Sticky Top Bar: Request Appointment -> BLANK prefilled SMS (NO Text To Book up top) */}
       <div className="topbar">
         <div className="topbarInner">
           <div className="brand">
@@ -243,20 +245,8 @@ export default function App() {
           </div>
 
           <div className="actionsRow">
-            <a
-              className="pill primary"
-              href={smsBlankHref}
-              style={{ fontSize: 16, padding: "12px 14px" }}
-            >
+            <a className="pill primary" href={smsBlankHref} style={{ fontSize: 16, padding: "12px 14px" }}>
               Request Appointment
-            </a>
-
-            <a
-              className="pill"
-              href={smsBlankHref}
-              style={{ fontSize: 16, padding: "12px 14px" }}
-            >
-              Text To Book
             </a>
 
             <button
@@ -768,7 +758,8 @@ export default function App() {
 
         {/* Bottom sticky bar: Text + color icons */}
         <div className="mobileCta" aria-label="Quick actions">
-          <a className="btn btnPrimary" href={smsHref} onClick={onTextClick}>
+          {/* Bottom sticky Text To Book -> BLANK prefilled SMS */}
+          <a className="btn btnPrimary" href={smsBlankHref}>
             Text To Book
           </a>
 
