@@ -238,7 +238,7 @@ export default function App() {
       <div className="topbar">
         <div className="topbarInner">
           <div className="brand">
-            <div className="brandTitle">Crown Booking</div>
+            <div className="brandTitle">Pink Swann Booking</div>
             <div className="brandMeta">
               <b>{ADDRESS_LINE_1}</b> · {ADDRESS_LINE_2}
             </div>
