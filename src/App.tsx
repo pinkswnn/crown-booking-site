@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type MouseEvent } from "react";
 import { motion } from "framer-motion";
 
 const ADDRESS_COPY = "143 S Central Expy, McKinney, TX 75070";
@@ -88,6 +88,21 @@ function buildSingleLineText(opts: {
   return parts.join(" | ");
 }
 
+// NEW: Blank prefilled SMS (so sticky bar can always send a clean template)
+function buildBlankSingleLineText() {
+  const parts = [
+    "Hey Pink Swann, Crown Request.",
+    "Name:",
+    "Phone:",
+    "Service:",
+    "Type: In-Shop or Mobile",
+    "Preferred Date:",
+    "Time Window:",
+    "Notes:",
+  ];
+  return parts.join(" | ");
+}
+
 const asset = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\/?/, "")}`;
 
 export default function App() {
@@ -118,6 +133,7 @@ export default function App() {
     return { ok: errs.length === 0, errs };
   }, [name, phone, service]);
 
+  // Filled text (used in form + bottom sticky)
   const smsHref = useMemo(() => {
     const body = buildSingleLineText({
       name,
@@ -131,6 +147,11 @@ export default function App() {
     });
     return buildSmsHref(body);
   }, [name, phone, email, service, serviceType, preferredDate, timing, notes]);
+
+  // Blank template text (used in TOP sticky bar)
+  const smsBlankHref = useMemo(() => {
+    return buildSmsHref(buildBlankSingleLineText());
+  }, []);
 
   const mailtoHref = useMemo(() => {
     const subject = "Appointment Request";
@@ -194,13 +215,13 @@ export default function App() {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  // “Request Appointment” = scroll to request section (no Stripe / no Sheets)
+  // Kept for hero/final CTA (scrolls to form)
   function goToRequest() {
     setShowValidation(false);
     scrollTo("form");
   }
 
-  function onTextClick(e: React.MouseEvent) {
+  function onTextClick(e: MouseEvent) {
     setShowValidation(true);
     if (!validation.ok) {
       e.preventDefault();
@@ -211,7 +232,7 @@ export default function App() {
     <div className="page">
       <div className="bg" />
 
-      {/* Sticky Top Bar (NO Stripe): Request Appointment (scroll) + Copy Address */}
+      {/* Sticky Top Bar: BOTH CTAs -> BLANK prefilled SMS (NO Stripe / NO Form) */}
       <div className="topbar">
         <div className="topbarInner">
           <div className="brand">
@@ -222,10 +243,29 @@ export default function App() {
           </div>
 
           <div className="actionsRow">
-            <button className="pill primary" onClick={goToRequest} type="button">
-              Begin Your Crown Care
-            </button>
-            <button className="pill" onClick={copyAddress} type="button" aria-label="Copy address">
+            <a
+              className="pill primary"
+              href={smsBlankHref}
+              style={{ fontSize: 16, padding: "12px 14px" }}
+            >
+              Request Appointment
+            </a>
+
+            <a
+              className="pill"
+              href={smsBlankHref}
+              style={{ fontSize: 16, padding: "12px 14px" }}
+            >
+              Text To Book
+            </a>
+
+            <button
+              className="pill"
+              onClick={copyAddress}
+              type="button"
+              aria-label="Copy address"
+              style={{ fontSize: 15, padding: "12px 14px" }}
+            >
               📍 <b>{copied ? "Copied" : "Copy Address"}</b>
             </button>
           </div>
@@ -340,13 +380,28 @@ export default function App() {
 
               {/* Media order: Crown Reset → Protective → Signature */}
               <div className="mediaStrip" aria-label="Visuals">
-                <a className="mediaCard" href="https://pinkswann.com/shop/crown-reset-sensory-haircare/" target="_blank" rel="noopener noreferrer">
+                <a
+                  className="mediaCard"
+                  href="https://pinkswann.com/shop/crown-reset-sensory-haircare/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <img src={asset("media/crown-reset.png")} alt="Crown Reset" loading="lazy" />
                 </a>
-                <a className="mediaCard" href="https://pinkswann.com/shop/protective-crown-sensory-haircare/" target="_blank" rel="noopener noreferrer">
+                <a
+                  className="mediaCard"
+                  href="https://pinkswann.com/shop/protective-crown-sensory-haircare/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <img src={asset("media/protective-crown.png")} alt="Protective Crown" loading="lazy" />
                 </a>
-                <a className="mediaCard" href="https://pinkswann.com/shop/signature-crown-sensory-haircare/" target="_blank" rel="noopener noreferrer">
+                <a
+                  className="mediaCard"
+                  href="https://pinkswann.com/shop/signature-crown-sensory-haircare/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
                   <img src={asset("media/signature-crown.png")} alt="Signature Crown" loading="lazy" />
                 </a>
               </div>
@@ -383,7 +438,12 @@ export default function App() {
               </div>
 
               <div className="btnRow" style={{ justifyContent: "center", marginTop: 12 }}>
-                <a className="btn btnPrimary" href="https://pinkswann.com/shop/crown-reset-sensory-haircare/" target="_blank" rel="noreferrer">
+                <a
+                  className="btn btnPrimary"
+                  href="https://pinkswann.com/shop/crown-reset-sensory-haircare/"
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   Start With A Crown Reset
                 </a>
               </div>
@@ -406,11 +466,15 @@ export default function App() {
             <div className="cards3" style={{ marginTop: 12 }}>
               <div className="card">
                 <div className="cardTitle">1. Request Care</div>
-                <div className="cardBody">Share the service you’re seeking, timing preferences, and service type.</div>
+                <div className="cardBody">
+                  Share the service you’re seeking, timing preferences, and service type.
+                </div>
               </div>
               <div className="card">
                 <div className="cardTitle">2. Review &amp; Approval</div>
-                <div className="cardBody">Requests are reviewed personally. Approved bookings receive confirmation and next steps.</div>
+                <div className="cardBody">
+                  Requests are reviewed personally. Approved bookings receive confirmation and next steps.
+                </div>
               </div>
               <div className="card">
                 <div className="cardTitle">3. Confirmation &amp; Retainer</div>
@@ -439,9 +503,29 @@ export default function App() {
             </div>
 
             <div className="formGrid">
-              <input className="input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Name" autoComplete="name" />
-              <input className="input" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone" autoComplete="tel" inputMode="tel" />
-              <input className="input" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email (optional)" autoComplete="email" inputMode="email" />
+              <input
+                className="input"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Name"
+                autoComplete="name"
+              />
+              <input
+                className="input"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                placeholder="Phone"
+                autoComplete="tel"
+                inputMode="tel"
+              />
+              <input
+                className="input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Email (optional)"
+                autoComplete="email"
+                inputMode="email"
+              />
 
               <select className="select" value={service} onChange={(e) => setService(e.target.value)}>
                 {[
@@ -460,7 +544,11 @@ export default function App() {
                 ))}
               </select>
 
-              <select className="select" value={serviceType} onChange={(e) => setServiceType(e.target.value)}>
+              <select
+                className="select"
+                value={serviceType}
+                onChange={(e) => setServiceType(e.target.value)}
+              >
                 {["In-Shop", "Mobile"].map((x) => (
                   <option key={x} value={x}>
                     {x}
@@ -468,9 +556,24 @@ export default function App() {
                 ))}
               </select>
 
-              <input className="input" type="date" value={preferredDate} onChange={(e) => setPreferredDate(e.target.value)} />
-              <input className="input" value={timing} onChange={(e) => setTiming(e.target.value)} placeholder="Preferred time window (optional)" />
-              <textarea className="textarea" value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Notes (sensory needs, hair history, goals…)" />
+              <input
+                className="input"
+                type="date"
+                value={preferredDate}
+                onChange={(e) => setPreferredDate(e.target.value)}
+              />
+              <input
+                className="input"
+                value={timing}
+                onChange={(e) => setTiming(e.target.value)}
+                placeholder="Preferred time window (optional)"
+              />
+              <textarea
+                className="textarea"
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                placeholder="Notes (sensory needs, hair history, goals…)"
+              />
             </div>
 
             {showValidation && !validation.ok && (
@@ -618,7 +721,11 @@ export default function App() {
                         </svg>
                       </span>
                     </button>
-                    {open && <div className="faqAns" style={{ whiteSpace: "pre-line" }}>{item.a}</div>}
+                    {open && (
+                      <div className="faqAns" style={{ whiteSpace: "pre-line" }}>
+                        {item.a}
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -646,7 +753,12 @@ export default function App() {
                 </a>
               </div>
               <div style={{ marginTop: 8 }}>
-                <a className="footerLink" href="https://hustleignite.pinkswann.com" target="_blank" rel="noreferrer">
+                <a
+                  className="footerLink"
+                  href="https://hustleignite.pinkswann.com"
+                  target="_blank"
+                  rel="noreferrer"
+                >
                   Site Developed by HCH
                 </a>
               </div>
@@ -660,7 +772,13 @@ export default function App() {
             Text To Book
           </a>
 
-          <a className="iconBtn ig" href="https://instagram.com/beautyoggg" target="_blank" rel="noreferrer" aria-label="Instagram">
+          <a
+            className="iconBtn ig"
+            href="https://instagram.com/beautyoggg"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Instagram"
+          >
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path
                 d="M7.5 2.8h9A4.7 4.7 0 0 1 21.2 7.5v9A4.7 4.7 0 0 1 16.5 21.2h-9A4.7 4.7 0 0 1 2.8 16.5v-9A4.7 4.7 0 0 1 7.5 2.8Zm9 1.9h-9A2.8 2.8 0 0 0 4.7 7.5v9a2.8 2.8 0 0 0 2.8 2.8h9a2.8 2.8 0 0 0 2.8-2.8v-9a2.8 2.8 0 0 0-2.8-2.8ZM12 7.2A4.8 4.8 0 1 1 7.2 12 4.8 4.8 0 0 1 12 7.2Zm0 1.9A2.9 2.9 0 1 0 14.9 12 2.9 2.9 0 0 0 12 9.1Zm5.4-2.4a1.1 1.1 0 1 1-1.1 1.1 1.1 1.1 0 0 1 1.1-1.1Z"
@@ -669,7 +787,13 @@ export default function App() {
             </svg>
           </a>
 
-          <a className="iconBtn yt" href="https://youtube.com/pinkswannbeauty" target="_blank" rel="noreferrer" aria-label="YouTube">
+          <a
+            className="iconBtn yt"
+            href="https://youtube.com/pinkswannbeauty"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="YouTube"
+          >
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path
                 d="M21.6 7.2a3 3 0 0 0-2.1-2.1C17.7 4.6 12 4.6 12 4.6s-5.7 0-7.5.5A3 3 0 0 0 2.4 7.2 31.1 31.1 0 0 0 2 12a31.1 31.1 0 0 0 .4 4.8 3 3 0 0 0 2.1 2.1c1.8.5 7.5.5 7.5.5s5.7 0 7.5-.5a3 3 0 0 0 2.1-2.1A31.1 31.1 0 0 0 22 12a31.1 31.1 0 0 0-.4-4.8ZM10 15.2V8.8L15.6 12 10 15.2Z"
@@ -678,7 +802,13 @@ export default function App() {
             </svg>
           </a>
 
-          <a className="iconBtn shop" href="https://mypsstore.pinkswann.com" target="_blank" rel="noreferrer" aria-label="Shop">
+          <a
+            className="iconBtn shop"
+            href="https://mypsstore.pinkswann.com"
+            target="_blank"
+            rel="noreferrer"
+            aria-label="Shop"
+          >
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path
                 d="M7 7V6a5 5 0 0 1 10 0v1h3l-1 14H5L4 7h3Zm2 0h6V6a3 3 0 0 0-6 0v1Zm0 4a1 1 0 0 1 2 0v1a1 1 0 0 1-2 0v-1Zm6 0a1 1 0 0 1 2 0v1a1 1 0 0 1-2 0v-1Z"
